@@ -62,7 +62,7 @@ class MemberController extends Controller
     {
         $member = collect($this->members)->firstWhere('id', $id);
 
-        abort_if(! $member, 404);
+        abort_if(!$member, 404);
 
         return view('members.show', compact('member'));
     }
@@ -71,7 +71,7 @@ class MemberController extends Controller
     {
         $member = collect($this->members)->firstWhere('id', $id);
 
-        abort_if(! $member, 404);
+        abort_if(!$member, 404);
 
         return view('members.edit', compact('member'));
     }
