@@ -3,43 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMemberRequest;
+use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class MemberController extends Controller
 {
-    private array $members = [
-        [
-            'id' => 1,
-            'nama' => 'Ahmad Dahlan',
-            'nim' => '220101001',
-            'email' => 'ahmad@example.com',
-            'nomor_telepon' => '081234567890',
-            'alamat' => 'Jl. Pemuda No. 10',
-            'status' => 'aktif',
-        ],
-        [
-            'id' => 2,
-            'nama' => 'Siti Nurhaliza',
-            'nim' => '220101002',
-            'email' => 'siti@example.com',
-            'nomor_telepon' => '082345678901',
-            'alamat' => 'Jl. Merdeka No. 45',
-            'status' => 'aktif',
-        ],
-        [
-            'id' => 3,
-            'nama' => 'Budi Santoso',
-            'nim' => '220101003',
-            'email' => 'budi@example.com',
-            'nomor_telepon' => '083456789012',
-            'alamat' => 'Jl. Sudirman No. 88',
-            'status' => 'nonaktif',
-        ],
-    ];
-
-    public function index()
+    public function index(Request $request)
     {
-        $members = $this->members;
+        $members = Member::when($request->query('search'), function ($query, $search) {
+            $query->where('nama', 'like', "%{$search}%");
+        })->paginate(10);
 
         return view('members.index', compact('members'));
     }
@@ -53,49 +27,66 @@ class MemberController extends Controller
     {
         $validated = $request->validated();
 
+        Member::create($validated);
+
         return redirect()
             ->route('members.index')
-            ->with('success', "Anggota \"{$validated['nama']}\" berhasil ditambahkan (data dummy, belum tersimpan ke database).");
+            ->with('success', "Anggota \"{$validated['nama']}\" berhasil ditambahkan.");
     }
 
-    public function show(int $id)
+    public function show(string $id)
     {
-        $member = collect($this->members)->firstWhere('id', $id);
-
-        abort_if(!$member, 404);
+        $member = Member::findOrFail($id);
 
         return view('members.show', compact('member'));
     }
 
-    public function edit(int $id)
+    public function edit(string $id)
     {
-        $member = collect($this->members)->firstWhere('id', $id);
-
-        abort_if(!$member, 404);
+        $member = Member::findOrFail($id);
 
         return view('members.edit', compact('member'));
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'nama' => 'required|string|max:100',
-            'nim' => 'required|string|max:20',
-            'email' => 'required|email|max:100',
-            'nomor_telepon' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string',
-            'status' => 'required|in:aktif,nonaktif',
-        ]);
+        $member = Member::findOrFail($id);
+
+        $validated = $request->validate(
+            [
+                'nama' => 'required|string|max:100',
+                'nim' => ['required', 'string', 'max:20', Rule::unique('members')->ignore($member->id)],
+                'email' => ['required', 'email', 'max:100', Rule::unique('members')->ignore($member->id)],
+                'nomor_telepon' => 'required|string|max:15',
+                'alamat' => 'required|string',
+                'status' => 'required|in:aktif,nonaktif',
+            ],
+            [
+                'nama.required' => 'Nama anggota wajib diisi.',
+                'nim.required' => 'NIM wajib diisi.',
+                'nim.unique' => 'NIM sudah terdaftar.',
+                'email.required' => 'Email wajib diisi.',
+                'email.email' => 'Format email tidak valid.',
+                'email.unique' => 'Email sudah terdaftar.',
+                'nomor_telepon.required' => 'Nomor telepon wajib diisi.',
+                'alamat.required' => 'Alamat wajib diisi.',
+                'status.required' => 'Status wajib dipilih.',
+                'status.in' => 'Status harus aktif atau nonaktif.',
+            ],
+        );
+
+        $member->update($validated);
 
         return redirect()
             ->route('members.index')
-            ->with('success', "Anggota \"{$validated['nama']}\" berhasil diperbarui (data dummy, belum tersimpan ke database).");
+            ->with('success', "Data anggota \"{$validated['nama']}\" berhasil diperbarui.");
     }
 
-    public function destroy(int $id)
+    public function destroy(string $id)
     {
-        return redirect()
-            ->route('members.index')
-            ->with('success', "Anggota dengan id {$id} berhasil dihapus (data dummy, belum tersimpan ke database).");
+        $member = Member::findOrFail($id);
+        $member->delete();
+
+        return redirect()->route('members.index')->with('success', 'Anggota berhasil dihapus.');
     }
 }
