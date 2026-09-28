@@ -1,23 +1,14 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('title', 'wellcome page')
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+@section('content')
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <body>
+        <a href="{{ route('books.index') }}">books</a>
+        <a href="{{ route('categories.index') }}">categories</a>
+        <a href="{{ route('members.index') }}">members</a>
+        <a href="{{ route('loans.index') }}">loans</a>
+    </body>
 
-    <!-- Styles / Scripts -->
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-</head>
-
-<body>
-</body>
-
-</html>
+@endsection
