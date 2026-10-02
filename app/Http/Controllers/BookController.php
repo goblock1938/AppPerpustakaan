@@ -11,7 +11,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::paginate(10);
+        $books = Book::with('category')->paginate(10);
 
         return view('books.index', compact('books'));
     }
@@ -23,6 +23,13 @@ class BookController extends Controller
         return view('books.create', compact('categories'));
     }
 
+    public function show(string $id)
+    {
+        $book = Book::with('category')->findOrFail($id);
+
+        return view('books.show', compact('book'));
+    }
+
     public function store(StoreBookRequest $request)
     {
         $validated = $request->validated();
@@ -32,13 +39,6 @@ class BookController extends Controller
         return redirect()
             ->route('books.index')
             ->with('success', "Buku \"{$validated['judul']}\" berhasil ditambahkan.");
-    }
-
-    public function show(string $id)
-    {
-        $book = Book::findOrFail($id);
-
-        return view('books.show', compact('book'));
     }
 
     public function edit(string $id)

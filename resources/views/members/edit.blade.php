@@ -1,8 +1,50 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="id">
 
-@section('title', 'Edit Anggota')
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Anggota</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 40px;
+            max-width: 500px;
+        }
 
-@section('content')
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+
+        .error {
+            color: #b91c1c;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
     <h1>Edit Anggota</h1>
     <p><a href="{{ route('members.index') }}">&larr; Kembali ke daftar anggota</a></p>
 
@@ -10,7 +52,7 @@
         @csrf
         @method('PUT')
 
-        <label for="nama">Nama Anggota</label>
+        <label for="nama">Nama</label>
         <input type="text" name="nama" id="nama" value="{{ old('nama', $member['nama']) }}">
         @error('nama')
             <div class="error">{{ $message }}</div>
@@ -43,9 +85,8 @@
 
         <label for="status">Status</label>
         <select name="status" id="status">
-            <option value="aktif" {{ old('status', $member['status']) == 'aktif' ? 'selected' : '' }}>Aktif</option>
-            <option value="nonaktif" {{ old('status', $member['status']) == 'nonaktif' ? 'selected' : '' }}>Nonaktif
-            </option>
+            <option value="aktif" @selected(old('status', $member['status']) == 'aktif')>Aktif</option>
+            <option value="nonaktif" @selected(old('status', $member['status']) == 'nonaktif')>Nonaktif</option>
         </select>
         @error('status')
             <div class="error">{{ $message }}</div>
@@ -53,4 +94,6 @@
 
         <button type="submit" class="btn">Perbarui</button>
     </form>
-@endsection
+</body>
+
+</html>
