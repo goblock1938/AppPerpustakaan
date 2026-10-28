@@ -13,7 +13,12 @@
                     class="{{ request()->routeIs('loans.*') ? 'active' : '' }}">Peminjaman</a></li>
         </ul>
         <div class="navbar-user">
-            <span>{{ auth()->user()->name }} ({{ ucfirst(auth()->user()->role) }})</span>
+            <span>
+                <a href="{{ route('profile.show') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}"
+                    style="text-decoration: none; color: #fff;">
+                    {{ auth()->user()->name }}({{ ucfirst(auth()->user()->role) }})
+                </a>
+            </span>
             <form action="{{ route('logout') }}" method="POST" class="inline">
                 @csrf
                 <button type="submit" class="btn-logout">Logout</button>
